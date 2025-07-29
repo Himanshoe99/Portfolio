@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 98%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Custom animation for the blinking cursor */
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.animate-blink {
+  animation: blink 0.7s infinite step-end;
+}
+
+/* Glowing button effect */
+.glowing-button-wrapper {
+  position: relative;
+  z-index: 1; /* Ensure the button is above the glow */
+}
+
+.glowing-button-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: -5px; /* Adjust to control the size of the glow */
+  border-radius: 9999px; /* Matches button's full-rounded corners */
+  background: linear-gradient(45deg, #9d00ff, #ff006f, #9d00ff); /* Gradient colors */
+  background-size: 200% 200%;
+  filter: blur(10px); /* Adjust to control the blur intensity */
+  animation: glowing 3s linear infinite;
+  z-index: -1; /* Place behind the button */
+  opacity: 0.7; /* Adjust opacity of the glow */
+  transition: opacity 0.3s ease-in-out;
+}
+
+.glowing-button-wrapper:hover::before {
+  opacity: 1;
+  filter: blur(15px); /* Stronger blur on hover */
+}
+
+@keyframes glowing {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
