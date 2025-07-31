@@ -956,28 +956,6 @@ export default function Portfolio() {
         </div>
       </section>
 
-      {/* Photography Section */}
-      <section id="photography" className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 md:pl-24 relative z-10">
-        <div className="max-w-7xl mx-auto">
-          <motion.h2
-            {...fadeInUp}
-            className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-8 text-center text-white"
-          >
-            Photography
-          </motion.h2>
-
-          <motion.div
-            variants={staggerContainer}
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true }}
-            className="relative overflow-hidden flex items-center justify-center"
-          >
-            <PhotoCarousel />
-          </motion.div>
-        </div>
-      </section>
-
       {/* Tech Stack Section */}
       <section id="tech" className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 md:pl-24 relative z-10">
         <div className="max-w-6xl mx-auto">
@@ -1070,6 +1048,28 @@ export default function Portfolio() {
         </div>
       </section>
 
+      {/* Photography Section */}
+      <section id="photography" className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 md:pl-24 relative z-10">
+        <div className="max-w-7xl mx-auto">
+          <motion.h2
+            {...fadeInUp}
+            className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-8 text-center text-white"
+          >
+            Photography
+          </motion.h2>
+
+          <motion.div
+            variants={staggerContainer}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+            className="relative overflow-hidden flex items-center justify-center"
+          >
+            <PhotoCarousel />
+          </motion.div>
+        </div>
+      </section>
+
       {/* Let's Work Together Section - New Footer Design */}
       <section
         id="contact"
@@ -1154,12 +1154,12 @@ export default function Portfolio() {
                   <Linkedin className="w-4 h-4 sm:w-5 sm:h-5" />
                 </Button></a>
               <a href="mailto:himanshujangid2003@gmail.com">
-              <Button
-                className="bg-gray-800/90 backdrop-blur-md border border-gray-600/50 text-white hover:bg-gray-700/90 hover:border-gray-500/50 transition-all duration-500 hover:scale-105"
-                size="icon"
-              >
-                <Mail className="w-4 h-4 sm:w-5 sm:h-5" />
-              </Button></a>
+                <Button
+                  className="bg-gray-800/90 backdrop-blur-md border border-gray-600/50 text-white hover:bg-gray-700/90 hover:border-gray-500/50 transition-all duration-500 hover:scale-105"
+                  size="icon"
+                >
+                  <Mail className="w-4 h-4 sm:w-5 sm:h-5" />
+                </Button></a>
             </div>
           </div>
         </div>
