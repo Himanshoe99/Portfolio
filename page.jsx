@@ -81,9 +81,9 @@ const PhotoCarousel = () => {
   const [isDragging, setIsDragging] = useState(false)
   const [startX, setStartX] = useState(0)
   const [translateX, setTranslateX] = useState(0)
+  const [isMobile, setIsMobile] = useState(false)
   const containerRef = useRef(null)
 
-  // Sample photography images - replace with actual image URLs
   const images = [
     "/images/1.jpg",
     "/images/2.JPG",
@@ -97,6 +97,15 @@ const PhotoCarousel = () => {
     "/images/10.jpg",
   ]
 
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    window.addEventListener("resize", handleResize)
+    handleResize()
+    return () => window.removeEventListener("resize", handleResize)
+  }, [])
+
   const handleMouseDown = (e) => {
     setIsDragging(true)
     setStartX(e.clientX)
@@ -104,7 +113,6 @@ const PhotoCarousel = () => {
 
   const handleMouseMove = (e) => {
     if (!isDragging) return
-
     const currentX = e.clientX
     const diff = startX - currentX
     setTranslateX(diff)
@@ -112,10 +120,7 @@ const PhotoCarousel = () => {
 
   const handleMouseUp = () => {
     if (!isDragging) return
-
     setIsDragging(false)
-
-    // Determine if we should move to next/previous image
     if (Math.abs(translateX) > 100) {
       if (translateX > 0 && currentIndex < images.length - 1) {
         setCurrentIndex(currentIndex + 1)
@@ -123,7 +128,6 @@ const PhotoCarousel = () => {
         setCurrentIndex(currentIndex - 1)
       }
     }
-
     setTranslateX(0)
   }
 
@@ -134,7 +138,6 @@ const PhotoCarousel = () => {
 
   const handleTouchMove = (e) => {
     if (!isDragging) return
-
     const currentX = e.touches[0].clientX
     const diff = startX - currentX
     setTranslateX(diff)
@@ -143,6 +146,8 @@ const PhotoCarousel = () => {
   const handleTouchEnd = () => {
     handleMouseUp()
   }
+
+  const transition = isMobile ? { duration: 0.2, ease: "easeInOut" } : { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }
 
   return (
     <div className="relative h-[550px] flex items-center justify-center">
@@ -161,33 +166,27 @@ const PhotoCarousel = () => {
           {images.map((image, index) => {
             const offset = index - currentIndex
             const isCenter = index === currentIndex
-
             return (
               <motion.div
                 key={index}
                 className="absolute"
                 animate={{
-                  x: offset * 200 + (isDragging ? -translateX : 0), // Increased offset for larger images
+                  x: offset * 200 + (isDragging ? -translateX : 0),
                   scale: isCenter ? 1 : 0.85,
                   zIndex: isCenter ? 10 : 5 - Math.abs(offset),
                   opacity: Math.abs(offset) > 2 ? 0 : 1,
                 }}
-                transition={{
-                  duration: 0.4, // Speed up animation
-                  ease: [0.25, 0.46, 0.45, 0.94],
-                }}
+                transition={transition}
                 style={{
                   filter: isCenter ? "none" : "grayscale(70%) brightness(0.6)",
                 }}
               >
                 <div className="w-[550px] h-[450px] rounded-2xl overflow-hidden shadow-2xl">
-                  {" "}
-                  {/* Increased image size */}
                   <Image
                     src={image || "/placeholder.svg"}
                     alt={`Photography ${index + 1}`}
-                    width={550} // Increased image width
-                    height={450} // Increased image height
+                    width={550}
+                    height={450}
                     className="w-full h-full object-cover transition-all duration-800"
                     draggable={false}
                   />
@@ -197,8 +196,8 @@ const PhotoCarousel = () => {
           })}
         </div>
 
-        {/* Navigation dots */}
-        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-2">
+        {/* Navigation dots -- FIXED with z-20 */}
+        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
           {images.map((_, index) => (
             <button
               key={index}
@@ -313,10 +312,23 @@ const InteractiveBackground = () => {
   const canvasRef = useRef(null)
   const mouseRef = useRef({ x: 0, y: 0 })
   const animationRef = useRef()
+  const [isMobile, setIsMobile] = useState(false) // New state for mobile check
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768) // Set isMobile state based on screen width
+    }
+
+    handleResize()
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
+  }, [])
 
   useEffect(() => {
     const canvas = canvasRef.current
-    if (!canvas) return
+    if (!canvas) {
+      return
+    }
 
     const ctx = canvas.getContext("2d")
     const dots = []
@@ -363,28 +375,35 @@ const InteractiveBackground = () => {
       const mouseY = mouseRef.current.y
 
       dots.forEach((dot) => {
-        // Calculate distance from mouse
-        const dx = mouseX - dot.x
-        const dy = mouseY - dot.y
-        const distance = Math.sqrt(dx * dx + dy * dy)
+        if (!isMobile) {
+          // Calculate distance from mouse only on non-mobile screens
+          const dx = mouseX - dot.x
+          const dy = mouseY - dot.y
+          const distance = Math.sqrt(dx * dx + dy * dy)
 
-        // Calculate effect based on distance
-        if (distance < EFFECT_RADIUS) {
-          const effect = 1 - distance / EFFECT_RADIUS
-          dot.targetScale = 1 + effect * MAX_SCALE
-          dot.targetOpacity = 0.3 + effect * 0.7
+          // Calculate effect based on distance
+          if (distance < EFFECT_RADIUS) {
+            const effect = 1 - distance / EFFECT_RADIUS
+            dot.targetScale = 1 + effect * MAX_SCALE
+            dot.targetOpacity = 0.3 + effect * 0.7
 
-          // Add slight displacement towards mouse
-          const displacement = effect * 15
-          dot.x = dot.originalX + (dx / distance) * displacement
-          dot.y = dot.originalY + (dy / distance) * displacement
+            // Add slight displacement towards mouse
+            const displacement = effect * 15
+            dot.x = dot.originalX + (dx / distance) * displacement
+            dot.y = dot.originalY + (dy / distance) * displacement
+          } else {
+            dot.targetScale = 1
+            dot.targetOpacity = 0.3
+            dot.x = dot.originalX
+            dot.y = dot.originalY
+          }
         } else {
+          // On mobile, just maintain the default state
           dot.targetScale = 1
           dot.targetOpacity = 0.3
           dot.x = dot.originalX
           dot.y = dot.originalY
         }
-
         // Smooth animation
         dot.scale += (dot.targetScale - dot.scale) * ANIMATION_SPEED
         dot.opacity += (dot.targetOpacity - dot.opacity) * ANIMATION_SPEED
@@ -412,7 +431,9 @@ const InteractiveBackground = () => {
       resizeCanvas()
       createDots()
     })
-    window.addEventListener("mousemove", handleMouseMove)
+    if (!isMobile) {
+      window.addEventListener("mousemove", handleMouseMove)
+    }
 
     return () => {
       window.removeEventListener("resize", resizeCanvas)
@@ -421,7 +442,7 @@ const InteractiveBackground = () => {
         cancelAnimationFrame(animationRef.current)
       }
     }
-  }, [])
+  }, [isMobile]) // Rerun effect when isMobile changes
 
   return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0" style={{ opacity: 0.6 }} />
 }
@@ -698,11 +719,9 @@ export default function Portfolio() {
                           })}
                         </div>
                         <div className="text-sm sm:text-base font-medium text-white mb-2">
-                          {currentTime
-                            .toLocaleTimeString("en-US", {
-                              hour12: true,
-                            })
-                            .slice(-2)}
+                          {currentTime.toLocaleTimeString("en-US", {
+                            hour12: true,
+                          }).slice(-2)}
                         </div>
                       </div>
                       <div className="text-xs text-white/70 font-medium">TIME</div>
@@ -890,7 +909,7 @@ export default function Portfolio() {
         <div className="max-w-6xl mx-auto">
           <motion.h2
             {...fadeInUp}
-            className="text-xl sm:text-2xl md:text-3xl font-bold mb-8 sm:mb-12 text-center text-white"
+            className="text-2xl sm:text-2xl md:text-3xl font-bold mb-8 sm:mb-12 text-center text-white"
           >
             Projects
           </motion.h2>
