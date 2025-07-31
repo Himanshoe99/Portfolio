@@ -75,105 +75,141 @@ const AnimatedText = ({ roles, className }) => {
   )
 }
 
-// Photo Carousel Component (Refactored for Performance)
+// Photo Carousel Component
 const PhotoCarousel = () => {
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const containerRef = useRef(null)
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [isDragging, setIsDragging] = useState(false)
+  const [startX, setStartX] = useState(0)
+  const [translateX, setTranslateX] = useState(0)
+  const [isMobile, setIsMobile] = useState(false)
+  const containerRef = useRef(null)
 
-  // Sample photography images - replace with actual image URLs
-  const images = [
-    "/images/1.jpg",
-    "/images/2.JPG",
-    "/images/3.jpg",
-    "/images/4.png",
-    "/images/5.jpg",
-    "/images/6.JPG",
-    "/images/7.jpg",
-    "/images/8.jpg",
-    "/images/9.jpg",
-    "/images/10.jpg",
-  ]
+  const images = [
+    "/images/1.jpg",
+    "/images/2.JPG",
+    "/images/3.jpg",
+    "/images/4.png",
+    "/images/5.jpg",
+    "/images/6.JPG",
+    "/images/7.jpg",
+    "/images/8.jpg",
+    "/images/9.jpg",
+    "/images/10.jpg",
+  ]
 
-  // Define image dimensions here for easier calculations
-  const IMAGE_WIDTH = 550 // Your original image width
-  const GAP = 20 // The gap between images
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    window.addEventListener("resize", handleResize)
+    handleResize()
+    return () => window.removeEventListener("resize", handleResize)
+  }, [])
 
-  const onDragEnd = (event, info) => {
-    const swipeThreshold = IMAGE_WIDTH / 4
-    const offset = info.offset.x
+  const handleMouseDown = (e) => {
+    setIsDragging(true)
+    setStartX(e.clientX)
+  }
 
-    if (offset < -swipeThreshold) {
-      // Swiped left
-      setCurrentIndex((prev) => Math.min(prev + 1, images.length - 1))
-    } else if (offset > swipeThreshold) {
-      // Swiped right
-      setCurrentIndex((prev) => Math.max(prev - 1, 0))
-    }
-  }
+  const handleMouseMove = (e) => {
+    if (!isDragging) return
+    const currentX = e.clientX
+    const diff = startX - currentX
+    setTranslateX(diff)
+  }
 
-  return (
-    <div className="relative w-full h-[550px] flex items-center justify-center">
-      {/* Viewport for the carousel */}
-      <div ref={containerRef} className="relative w-full max-w-6xl h-full overflow-hidden">
-        <motion.div
-          className="absolute left-0 top-0 h-full flex items-center cursor-grab active:cursor-grabbing"
-          style={{
-            // Center the filmstrip initially
-            left: `calc(50% - ${IMAGE_WIDTH / 2}px)`,
-            gap: `${GAP}px`,
-          }}
-          drag="x"
-          dragConstraints={{
-            right: 0,
-            // Calculate the leftmost boundary
-            left: -(images.length - 1) * (IMAGE_WIDTH + GAP),
-          }}
-          onDragEnd={onDragEnd}
-          // Animate the filmstrip to the current image's position
-          animate={{ x: -currentIndex * (IMAGE_WIDTH + GAP) }}
-          transition={{ type: "spring", stiffness: 200, damping: 25 }}
-        >
-          {images.map((image, index) => (
-            <motion.div
-              key={index}
-              className="flex-shrink-0"
-              style={{ width: IMAGE_WIDTH, height: 450 }}
-              // Animate scale and opacity based on the active index
-              animate={{
-                scale: currentIndex === index ? 1 : 0.85,
-                opacity: currentIndex === index ? 1 : 0.7,
-              }}
-              transition={{ duration: 0.4 }}
-            >
-              <div className="w-full h-full rounded-2xl overflow-hidden shadow-2xl bg-gray-800">
-                <Image
-                  src={image || "/placeholder.svg"}
-                  alt={`Photography ${index + 1}`}
-                  width={550}
-                  height={450}
-                  className="w-full h-full object-cover"
-                  draggable={false}
-                />
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
-      </div>
+  const handleMouseUp = () => {
+    if (!isDragging) return
+    setIsDragging(false)
+    if (Math.abs(translateX) > 100) {
+      if (translateX > 0 && currentIndex < images.length - 1) {
+        setCurrentIndex(currentIndex + 1)
+      } else if (translateX < 0 && currentIndex > 0) {
+        setCurrentIndex(currentIndex - 1)
+      }
+    }
+    setTranslateX(0)
+  }
 
-      {/* Navigation dots */}
-      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
-        {images.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => setCurrentIndex(index)}
-            className={`w-2 h-2 rounded-full transition-all duration-500 ${
-              index === currentIndex ? "bg-white" : "bg-white/30"
-            }`}
-          />
-        ))}
-      </div>
-    </div>
-  )
+  const handleTouchStart = (e) => {
+    setIsDragging(true)
+    setStartX(e.touches[0].clientX)
+  }
+
+  const handleTouchMove = (e) => {
+    if (!isDragging) return
+    const currentX = e.touches[0].clientX
+    const diff = startX - currentX
+    setTranslateX(diff)
+  }
+
+  const handleTouchEnd = () => {
+    handleMouseUp()
+  }
+
+  const transition = isMobile ? { duration: 0.2, ease: "easeInOut" } : { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }
+
+  return (
+    <div className="relative h-[550px] flex items-center justify-center">
+      <div
+        ref={containerRef}
+        className="relative w-full max-w-6xl h-full cursor-grab active:cursor-grabbing select-none"
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        <div className="flex items-center justify-center h-full relative">
+          {images.map((image, index) => {
+            const offset = index - currentIndex
+            const isCenter = index === currentIndex
+            return (
+              <motion.div
+                key={index}
+                className="absolute"
+                animate={{
+                  x: offset * 200 + (isDragging ? -translateX : 0),
+                  scale: isCenter ? 1 : 0.85,
+                  zIndex: isCenter ? 10 : 5 - Math.abs(offset),
+                  opacity: Math.abs(offset) > 2 ? 0 : 1,
+                }}
+                transition={transition}
+                style={{
+                  filter: isCenter ? "none" : "grayscale(70%) brightness(0.6)",
+                }}
+              >
+                <div className="w-[550px] h-[450px] rounded-2xl overflow-hidden shadow-2xl">
+                  <Image
+                    src={image || "/placeholder.svg"}
+                    alt={`Photography ${index + 1}`}
+                    width={550}
+                    height={450}
+                    className="w-full h-full object-cover transition-all duration-800"
+                    draggable={false}
+                  />
+                </div>
+              </motion.div>
+            )
+          })}
+        </div>
+
+        {/* Navigation dots -- FIXED with z-20 */}
+        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
+          {images.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentIndex(index)}
+              className={`w-2 h-2 rounded-full transition-all duration-500 ${index === currentIndex ? "bg-white" : "bg-white/30"
+                }`}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  )
 }
 
 // Timer Component
