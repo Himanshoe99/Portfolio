@@ -591,7 +591,7 @@ export default function Portfolio() {
             transition={{ delay: 0.5, duration: 1.0 }}
             className="text-sm sm:text-base md:text-lg text-[#A3A3A3] mb-6 sm:mb-8 max-w-2xl mx-auto px-4"
           >
-            Hi, I'm Himanshu. Front-End Developer from Mumbai, India, with 2 years of experience in React and Next.js.
+            Hi, I'm Himanshu. Front-End Developer from Mumbai, India, with 2 years of hands-on experience in React and Next.js.
             Beyond code, I craft visual stories through design, with 80+ bold and creative projects under my belt.
           </motion.p>
 
