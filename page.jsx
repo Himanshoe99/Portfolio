@@ -1037,8 +1037,8 @@ export default function Portfolio() {
             {[
               { name: "Figma", icon: <Figma className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14" /> },
               { name: "Adobe Photoshop", src: "/logos/photoshop.svg" },
-              { name: "Adobe Lightroom", src: "/logos/lightroom.svg" },
-              { name: "Snapseed", src: "/logos/snapseed.svg" },
+              { name: "Adobe Lightroom", src: "/logos/lightroom.png" },
+              { name: "Snapseed", src: "/logos/snapseed.png" },
               { name: "Canva", src: "/logos/canva.svg" },
               { name: "Picsart", src: "/logos/picsart.png" },
               { name: "Capcut", src: "/logos/capcut.png" },
