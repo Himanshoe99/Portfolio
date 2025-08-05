@@ -575,7 +575,7 @@ export default function Portfolio() {
             transition={{ duration: 1.5 }}
             className="mb-6 sm:mb-8"
           >
-            {/* Removed "Online" status */}
+            {/* Name */}
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-2 sm:mb-4 leading-tight">
               Hey, I'm <span className="text-white">Himanshu</span>
             </h1>
